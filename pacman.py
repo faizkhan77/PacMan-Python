@@ -15,17 +15,25 @@ font = pygame.font.Font('freesansbold.ttf', 20)
 level = copy.deepcopy(boards)
 color = 'blue'
 PI = math.pi
+
+# -----------------------getting images and scaling it------------------------------------------------------------
 player_images = []
+
 for i in range(1, 5):
-    player_images.append(pygame.transform.scale(pygame.image.load(f'assets/player_images/{i}.png'), (45, 45)))
-blinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/red.png'), (45, 45))
-pinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/pink.png'), (45, 45))
-inky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/blue.png'), (45, 45))
-clyde_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/orange.png'), (45, 45))
-spooked_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/powerup.png'), (45, 45))
-dead_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/dead.png'), (45, 45))
+    player_images.append(pygame.transform.scale(pygame.image.load(f'assets/player_images/{i}.png'), (35, 35)))
+    
+blinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/red.png'), (35, 35))
+pinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/pink.png'), (35, 35))
+inky_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/blue.png'), (35, 35))
+clyde_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/orange.png'), (35, 35))
+spooked_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/powerup.png'), (35, 35))
+dead_img = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/dead.png'), (35, 35))
+
+# ------------------------------------------staring postion of pacman---------------------------------------------------------
 player_x = 450
 player_y = 663
+# --------------------------------------------------------------
+
 direction = 0
 blinky_x = 56
 blinky_y = 58
@@ -61,7 +69,7 @@ pinky_box = False
 moving = False
 ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
-lives = 3
+lives = 2
 game_over = False
 game_won = False
 
@@ -535,7 +543,7 @@ class Ghost:
 
     def move_pinky(self):
         # r, l, u, d
-        # inky is going to turn left or right whenever advantageous, but only up or down on collision
+        # Pinky is going to turn left or right whenever advantageous, but only up or down on collision
         if self.direction == 0:
             if self.target[0] > self.x_pos and self.turns[0]:
                 self.x_pos += self.speed
@@ -669,7 +677,7 @@ def draw_misc():
     if game_over:
         pygame.draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
         pygame.draw.rect(screen, 'dark gray', [70, 220, 760, 260], 0, 10)
-        gameover_text = font.render('Game over! Space bar to restart!', True, 'red')
+        gameover_text = font.render('Game over! Press Space bar to restart!', True, 'red')
         screen.blit(gameover_text, (100, 300))
     if game_won:
         pygame.draw.rect(screen, 'white', [50, 200, 800, 300],0, 10)
@@ -728,7 +736,7 @@ def draw_board():
 
 
 def draw_player():
-    # 0-RIGHT, 1-LEFT, 2-UP, 3-DOWN
+    # ---------------------------------0-RIGHT, 1-LEFT, 2-UP, 3-DOWN----------------------------------
     if direction == 0:
         screen.blit(player_images[counter // 5], (player_x, player_y))
     elif direction == 1:
@@ -736,7 +744,7 @@ def draw_player():
     elif direction == 2:
         screen.blit(pygame.transform.rotate(player_images[counter // 5], 90), (player_x, player_y))
     elif direction == 3:
-        screen.blit(pygame.transform.rotate(player_images[counter // 5], 270), (player_x, player_y))
+        screen.blit(pygame.transform.rotate(player_images[counter // 5], -90), (player_x, player_y))
 
 
 def check_position(centerx, centery):
@@ -880,7 +888,30 @@ def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
     return [blink_target, ink_target, pink_target, clyd_target]
 
 
-run = True
+
+# -------------------------------------Display a message or instructions until the game starts-------------------
+font = pygame.font.Font(None, 36)
+instruction_text1 = font.render("PacMan made by Faiz Khan", True, (255, 255, 255))
+instruction_text2 = font.render("Press ENTER to start the game", True, (255, 255, 255))
+instruction_text_rect1 = instruction_text1.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 20))
+instruction_text_rect2 = instruction_text2.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 20))
+run = False
+
+while not run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                run = True  # Start the game when ENTER is pressed
+
+    # Display the instruction message until the game starts
+    screen.fill('black')
+    # ----drawing the text on screen---------------------
+    screen.blit(instruction_text1, instruction_text_rect1)
+    screen.blit(instruction_text2, instruction_text_rect2)
+    pygame.display.flip()
+
 while run:
     timer.tick(fps)
     if counter < 19:
@@ -1139,13 +1170,18 @@ while run:
         eaten_ghost[3] = True
         score += (2 ** eaten_ghost.count(True)) * 100
 
+
+# -----------------------------------HANDLING EVENTS-----------------------------------------------------------------
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                run = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
                 direction_command = 0
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT: 
                 direction_command = 1
             if event.key == pygame.K_UP:
                 direction_command = 2
