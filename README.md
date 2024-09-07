@@ -57,7 +57,7 @@ Welcome to the Pacman Game project repository! Immerse yourself in the classic a
 
 3. **Run the Game:**
    ```bash
-   python main.py
+   python pacman.py
    ```
 
 4. **Controls:**
